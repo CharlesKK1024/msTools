@@ -13,17 +13,19 @@ body {
   justify-content: center;
   align-items: flex-start;
   padding: 20px;
-  height: 100vh;
+  height: 90vh;
   box-sizing: border-box;
   overflow-x: auto; /* 屏幕窄时支持横向滚动 */
+  overflow-y: hidden;
 }
 .control-panel {
+  
   width: 350px;
   background: #2d2d2d;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  max-height: 100%; /* 适配父容器高度 */
+  max-height: 90%; /* 适配父容器高度 */
   overflow-y: auto; /* 面板内滚动 */
   flex-shrink: 0;
 }

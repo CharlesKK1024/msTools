@@ -262,7 +262,7 @@
       }
       .control-panel {
         width: 450px;
-        height: 95vh;
+        height: 100%;
         overflow-y: auto;
         background: #222;
         padding: 20px;
@@ -477,28 +477,34 @@
             >
           </div>
           <div class="control-content" v-show="!collapsed.displayMode">
-            <select v-model="posterData.displayMode">
-              <option value="mode-tree">树状分级 (适合父子关系)</option>
-              <option value="mode-column">侧边分栏 (左类右项)</option>
-              <option value="mode-card-group">卡片分组 (块状展示)</option>
-              <option value="mode-list">简约目录 (纯文字结构)</option>
-              <option value="mode-step">阶梯对齐 (动感排版)</option>
-              <option value="mode-center">居中对称 (适合重点展示)</option>
-              <option value="mode-grid">网格布局 (整齐排列)</option>
-              <option value="mode-waterfall">瀑布流 (错落有致)</option>
-              <option value="mode-timeline">时间轴 (线性展示)</option>
-            </select>
-            
-            <div style="margin-top: 15px;">
-              <label style="display: block; margin-bottom: 8px; font-size: 14px; color: #aaa;">头像大小</label>
-              <input type="range" v-model.number="posterData.avatarSize" min="30" max="100" style="width: 100%;" />
-              <div style="display: flex; justify-content: space-between; font-size: 12px; color: #888; margin-top: 5px;">
-                <span>30px</span>
-                <span>{{ posterData.avatarSize }}px</span>
-                <span>100px</span>
+            <div style="display: flex; gap: 15px; align-items: flex-start;">
+              <div style="flex: 1;">
+                <label style="display: block; margin-bottom: 8px; font-size: 14px; color: #aaa;">排布</label>
+                <select v-model="posterData.displayMode" style="width: 100%;">
+                  <option value="mode-tree">树状分级</option>
+                  <option value="mode-column">侧边分栏</option>
+                  <option value="mode-card-group">卡片分组</option>
+                  <option value="mode-list">简约目录</option>
+                  <option value="mode-step">阶梯对齐</option>
+                  <option value="mode-center">居中对称</option>
+                  <option value="mode-grid">网格布局</option>
+                  <option value="mode-waterfall">瀑布流</option>
+                  <option value="mode-timeline">时间轴</option>
+                </select>
+              </div>
+              
+              <div style="flex: 1;">
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                  <label style="font-size: 14px; color: #aaa; margin-right: 10px;">头像大小</label>
+                  <input type="range" v-model.number="posterData.avatarSize" min="30" max="100" style="flex: 1;" />
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 12px; color: #888; margin-top: 5px;">
+                  <span>30px</span>
+                  <span>{{ posterData.avatarSize }}px</span>
+                  <span>100px</span>
+                </div>
               </div>
             </div>
-
           </div>
         </div>
 
