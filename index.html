@@ -1,0 +1,1122 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>梦幻手游图文生成器 - 兴龙哥 V3.0 全量版</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="config/titleStyles.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/css.css" />
+
+    <style>
+      /* =========================================
+         1. 核心布局与动态压缩 CSS
+         ========================================= */
+      .poster-container {
+        width: 414px;
+        height: 736px;
+        position: relative;
+        overflow: hidden;
+        background: #fdfaf2;
+        flex-shrink: 0;
+      }
+      .poster-bg-deco {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        z-index: 1;
+      }
+      .poster-content {
+        position: relative;
+        z-index: 10;
+        padding: 30px 20px;
+        height: 100%;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* 列表容器：支持自动压缩 */
+      .list-wrap {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        overflow: hidden;
+        /* 动态 gap 会在内联样式中通过 Vue 绑定 */
+      }
+
+      /* 基础条目样式 */
+      .item-node {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+      .main-item {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      .sub-items-wrap {
+        padding-left: 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin-top: 5px;
+      }
+
+      .item-avatar {
+        background: #eee;
+        border-radius: 8px;
+        flex-shrink: 0;
+        border: 2px solid #fff;
+      }
+      .text-title {
+        font-size: 18px;
+        font-weight: 900;
+      }
+
+      /* =========================================
+         2. 多种排版模式 (含树状与分级)
+         ========================================= */
+      /* [模式1: 树形分级] */
+      .mode-tree .sub-items-wrap {
+        border-left: 2px solid rgba(0, 0, 0, 0.1);
+        margin-left: 10px;
+      }
+      .mode-tree .sub-item {
+        position: relative;
+        padding-left: 15px;
+      }
+      .mode-tree .sub-item::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 10px;
+        width: 10px;
+        height: 2px;
+        background: rgba(0, 0, 0, 0.1);
+      }
+
+      /* [模式2: 侧边分栏] */
+      .mode-column .item-node {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 10px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding-bottom: 5px;
+      }
+      .mode-column .main-item {
+        width: 100px;
+        flex-direction: column;
+        text-align: center;
+        flex-shrink: 0;
+      }
+      .mode-column .sub-items-wrap {
+        padding-left: 0;
+        flex: 1;
+        margin-top: 0;
+      }
+
+      /* [模式3: 卡片分级] */
+      .mode-card-group .item-node {
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 12px;
+        padding: 10px;
+        margin-bottom: 5px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+      .mode-card-group .sub-item {
+        background: #fff;
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+      }
+
+      /* [模式4: 简约目录] */
+      .mode-list .item-avatar {
+        display: none;
+      }
+      .mode-list .text-title::before {
+        content: "●";
+        margin-right: 8px;
+        font-size: 12px;
+        vertical-align: middle;
+      }
+
+      /* [模式5: 阶梯对齐] */
+      .mode-step .item-node:nth-child(even) {
+        align-self: flex-end;
+        text-align: right;
+        width: 80%;
+      }
+      .mode-step .item-node:nth-child(even) .main-item {
+        flex-direction: row-reverse;
+      }
+
+      /* [模式6: 居中对称] */
+      .mode-center {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .mode-center .main-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .mode-center .sub-items-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 10px;
+      }
+      .mode-center .sub-item {
+        text-align: center;
+        margin-bottom: 5px;
+      }
+      
+      /* [模式7: 网格布局] */
+      .mode-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+      }
+      .mode-grid .main-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+      }
+      .mode-grid .sub-items-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 10px;
+      }
+      .mode-grid .sub-item {
+        text-align: center;
+        margin-bottom: 5px;
+      }
+      
+      /* [模式8: 瀑布流布局] */
+      .mode-waterfall {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+      .mode-waterfall .main-item {
+        flex: 1 1 200px;
+        margin-bottom: 10px;
+      }
+      
+      /* [模式9: 时间轴布局] */
+      .mode-timeline {
+        position: relative;
+        padding-left: 30px;
+      }
+      .mode-timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #666;
+      }
+      .mode-timeline .main-item {
+        position: relative;
+        margin-bottom: 25px;
+      }
+      .mode-timeline .main-item::before {
+        content: '';
+        position: absolute;
+        left: -30px;
+        top: 10px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #4caf50;
+      }
+      
+
+      /* =========================================
+         3. 控制面板样式 (保持你原来的风格)
+         ========================================= */
+      body {
+        margin: 0;
+        padding: 20px;
+        background-color: #1a1a1a;
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        font-family: sans-serif;
+        color: #fff;
+      }
+      .control-panel {
+        width: 450px;
+        height: 95vh;
+        overflow-y: auto;
+        background: #222;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid #333;
+      }
+      .control-group {
+        margin-bottom: 15px;
+      }
+      .control-group label {
+        display: block;
+        font-size: 12px;
+        color: #888;
+        margin-bottom: 5px;
+      }
+      input,
+      select,
+      button {
+        width: 100%;
+        padding: 8px;
+        background: #333;
+        border: 1px solid #444;
+        color: #fff;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      button {
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      button:hover {
+        background: #444;
+      }
+      .btn-add {
+        background: #2e7d32;
+        border: none;
+        margin-top: 5px;
+        font-size: 12px;
+      }
+      .btn-del {
+        background: #c62828;
+        border: none;
+        width: auto;
+        padding: 2px 8px;
+        font-size: 10px;
+      }
+
+      /* 你原来的标题选择器样式 */
+      .style-selector {
+        position: relative;
+        cursor: pointer;
+      }
+      .style-selector-trigger {
+        background: #444;
+        padding: 5px;
+        border-radius: 4px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+      }
+      .style-selector-panel {
+        position: fixed;
+        z-index: 1000;
+        background: #333;
+        border: 1px solid #555;
+        padding: 10px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+      }
+      .style-preview-item {
+        height: 30px;
+        border: 1px solid #666;
+        cursor: pointer;
+      }
+      .style-preview-item.selected {
+        border-color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="control-panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 10px 15px 15px;">
+          <h2 style="margin: 0; font-size: 18px;">🌸 梦手图文攻略</h2>
+          <button
+            class="btn-add"
+            @click="exportImage"
+            style="width: auto; padding: 6px 16px; font-size: 14px;"
+          >
+            📤 导出图文
+          </button>
+        </div>
+        <div class="control-group">
+          <div class="control-header" @click="toggleCollapse('bgSelector')">
+            <h4>🖼️ 背景图选择</h4>
+            <span class="collapse-icon"
+              >{{ collapsed.bgSelector ? '➕' : '➖' }}</span
+            >
+          </div>
+          <div class="control-content" v-show="!collapsed.bgSelector">
+            <div class="bg-preview-container">
+              <div
+                v-for="n in posterData.bgCount"
+                :key="n"
+                :class="['bg-preview-item', { active: posterData.bgImage === 'imgs/bg/' + n + '.jpg' }]"
+                @click="posterData.bgImage = 'imgs/bg/' + n + '.jpg'"
+              >
+                <img
+                  :src="'imgs/bg/' + n + '.jpg'"
+                  :alt="'背景 ' + n"
+                  style="width: 100%; height: 80%; object-fit: cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-header" @click="toggleCollapse('titleSettings')">
+            <h4>🎨 标题设置</h4>
+            <span class="collapse-icon"
+              >{{ collapsed.titleSettings ? '➕' : '➖' }}</span
+            >
+          </div>
+          <div class="control-content" v-show="!collapsed.titleSettings">
+            <input
+              type="text"
+              v-model="posterData.title"
+              style="margin-bottom: 10px"
+            />
+            <div style="display: flex; gap: 8px; align-items: center">
+              <button @click="randomizeTitleStyle" style="width: 40px">
+                🎲
+              </button>
+              <label style="margin: 0; white-space: nowrap">
+                <input
+                  type="checkbox"
+                  v-model="posterData.showBg"
+                  style="width: auto; margin-right: 5px"
+                />
+                显示背景
+              </label>
+              <div class="style-selector" style="flex: 1">
+                <div
+                  class="style-selector-trigger"
+                  @click="togglePanel('bg', $event)"
+                >
+                  <span>背景: {{ selectedBgLabel }}</span>
+                </div>
+                <div
+                  class="style-selector-panel"
+                  v-show="activePanel === 'bg'"
+                  :style="panelStyle"
+                >
+                  <div
+                    v-for="style in titleBgStyles"
+                    :key="style.value"
+                    :class="['style-preview-item', style.value, { selected: posterData.titleBgStyle === style.value }]"
+                    @click="selectStyle('bg', style.value)"
+                  ></div>
+                </div>
+              </div>
+              <div class="style-selector" style="flex: 1">
+                <div
+                  class="style-selector-trigger"
+                  @click="togglePanel('text', $event)"
+                >
+                  <span>特效: {{ selectedTextLabel }}</span>
+                </div>
+                <div
+                  class="style-selector-panel"
+                  v-show="activePanel === 'text'"
+                  :style="panelStyle"
+                >
+                  <div
+                    v-for="style in titleTextStyles"
+                    :key="style.value"
+                    :class="['style-preview-item', 'text-preview', style.value, { selected: isStyleSelected(style.value) }]"
+                    @click="selectStyle(activePanel, style.value)"
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-top: 10px;
+              "
+            >
+              <label style="margin: 0">字号:</label>
+              <input
+                type="range"
+                v-model.number="posterData.titleFontSize"
+                min="20"
+                max="50"
+                style="flex: 1"
+              />
+              <span>{{posterData.titleFontSize}}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="control-header" @click="toggleCollapse('displayMode')">
+            <h4>📐 全局排版模式</h4>
+            <span class="collapse-icon"
+              >{{ collapsed.displayMode ? '➕' : '➖' }}</span
+            >
+          </div>
+          <div class="control-content" v-show="!collapsed.displayMode">
+            <select v-model="posterData.displayMode">
+              <option value="mode-tree">树状分级 (适合父子关系)</option>
+              <option value="mode-column">侧边分栏 (左类右项)</option>
+              <option value="mode-card-group">卡片分组 (块状展示)</option>
+              <option value="mode-list">简约目录 (纯文字结构)</option>
+              <option value="mode-step">阶梯对齐 (动感排版)</option>
+              <option value="mode-center">居中对称 (适合重点展示)</option>
+              <option value="mode-grid">网格布局 (整齐排列)</option>
+              <option value="mode-waterfall">瀑布流 (错落有致)</option>
+              <option value="mode-timeline">时间轴 (线性展示)</option>
+            </select>
+            
+            <div style="margin-top: 15px;">
+              <label style="display: block; margin-bottom: 8px; font-size: 14px; color: #aaa;">头像大小</label>
+              <input type="range" v-model.number="posterData.avatarSize" min="30" max="100" style="width: 100%;" />
+              <div style="display: flex; justify-content: space-between; font-size: 12px; color: #888; margin-top: 5px;">
+                <span>30px</span>
+                <span>{{ posterData.avatarSize }}px</span>
+                <span>100px</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div
+            class="control-header"
+            @click="toggleCollapse('contentManagement')"
+          >
+            <h4>📝 内容管理</h4>
+            <span class="collapse-icon"
+              >{{ collapsed.contentManagement ? '➕' : '➖' }}</span
+            >
+          </div>
+          <div class="control-content" v-show="!collapsed.contentManagement">
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+              "
+            >
+              <button
+                class="btn-add"
+                @click="addItem"
+                style="width: auto; padding: 4px 12px"
+              >
+                + 添加分类/主条目
+              </button>
+              <div style="display: flex; gap: 8px; margin-left: 8px; align-items: center;">
+                <label style="display: flex; align-items: center; gap: 3px; font-size: 11px;">
+                  <input type="checkbox" v-model="unifyMainTitleColor" style="margin: 0; width: 12px; height: 12px;">
+                  主色
+                </label>
+                <label style="display: flex; align-items: center; gap: 3px; font-size: 11px;">
+                  <input type="checkbox" v-model="unifySubItemColor" style="margin: 0; width: 12px; height: 12px;">
+                  子色
+                </label>
+                <label style="display: flex; align-items: center; gap: 3px; font-size: 11px;">
+                  <input type="checkbox" v-model="unifyMainTitleFontSize" style="margin: 0; width: 12px; height: 12px;">
+                  主号
+                </label>
+                <label style="display: flex; align-items: center; gap: 3px; font-size: 11px;">
+                  <input type="checkbox" v-model="unifySubItemFontSize" style="margin: 0; width: 12px; height: 12px;">
+                  子号
+                </label>
+              </div>
+            </div>
+
+            <div
+              v-for="(item, idx) in posterData.items "
+              class="desc_card"
+              :key="idx"
+              style="
+                background: #333;
+                padding: 10px;
+                border-radius: 8px;
+                margin-top: 10px;
+                border: 1px solid #444;
+              "
+            >
+              <div
+                style="
+                  display: flex;
+                  gap: 5px;
+                  margin-bottom: 5px;
+                  align-items: center;
+                "
+              >
+                <div
+                  style="cursor: pointer; font-size: 12px"
+                  @click="toggleDescCardCollapse(idx)"
+                >
+                  {{ item.cardCollapsed ? '➕' : '➖' }}
+                </div>
+                <span>{{idx+1}}</span>
+                <input v-model="item.name" placeholder="名称" style="flex: 2" />
+                <div
+                  class="style-selector"
+                  style="
+                    width: 30px;
+                    height: 30px;
+                    flex-shrink: 0;
+                    position: relative;
+                  "
+                >
+                  <div
+                    class="style-selector-trigger"
+                    @click="togglePanel('item-name-color-' + idx, $event)"
+                  >
+                    <span>{{ selectedItemNameColorLabel(item).value }}</span>
+                  </div>
+                  <div
+                    class="style-selector-panel"
+                    v-show="activePanel === ('item-name-color-' + idx)"
+                    :style="panelStyle"
+                  >
+                    <div
+                      v-for="style in itemColorStyles"
+                      :key="style.value"
+                      :class="['style-preview-item', 'text-preview', style.value, { selected: isStyleSelected(style.value) }]"
+                      @click="selectStyle('item-name-color-' + idx, style.value)"
+                    ></div>
+                  </div>
+                </div>
+                <button class="btn-del" @click="removeItem(idx)">×销</button>
+              </div>
+              <!-- Sub-item configuration -->
+              <div v-show="!item.cardCollapsed">
+                <div
+                  style="
+                    display: flex;
+                    gap: 5px;
+                    margin-bottom: 5px;
+                    align-items: center;
+                    flex-wrap: wrap;
+                  "
+                >
+                  <label
+                    style="
+                      margin: 0;
+                      font-size: 12px;
+                      color: #888;
+                      flex-shrink: 0;
+                    "
+                    >子项配置</label
+                  >
+                  <div
+                    class="style-selector"
+                    style="width: 80px; flex-shrink: 0"
+                  >
+                    <div
+                      class="style-selector-trigger"
+                      :class="item.subItemNameColor"
+                      @click="togglePanel('item-sub-item-name-color-' + idx, $event)"
+                    >
+                      <span
+                        >{{ selectedSubItemNameColorLabel(item).value }}</span
+                      >
+                    </div>
+                    <div
+                      class="style-selector-panel"
+                      v-show="activePanel === ('item-sub-item-name-color-' + idx)"
+                      :style="panelStyle"
+                    >
+                      <div
+                        v-for="style in itemColorStyles"
+                        :key="style.value"
+                        :class="['style-preview-item', 'text-preview', style.value, { selected: isStyleSelected(style.value) }]"
+                        @click="selectStyle('item-sub-item-name-color-' + idx, style.value)"
+                      ></div>
+                    </div>
+                  </div>
+                  <label
+                    style="
+                      margin: 0;
+                      font-size: 12px;
+                      color: #888;
+                      flex-shrink: 0;
+                    "
+                    >标题字号:</label
+                  >
+                  <input
+                    type="range"
+                    v-model.number="item.nameFontSize"
+                    min="14"
+                    max="40"
+                    style="flex: 1"
+                  />
+                  <span style="width: 20px; flex-shrink: 0"
+                    >{{item.nameFontSize}}</span
+                  >
+                  <label
+                    style="
+                      margin: 0;
+                      font-size: 12px;
+                      color: #888;
+                      flex-shrink: 0;
+                    "
+                    >子项字号:</label
+                  >
+                  <input
+                    type="range"
+                    v-model.number="item.subItemNameFontSize"
+                    min="10"
+                    max="24"
+                    style="flex: 1"
+                  />
+                  <span style="width: 20px; flex-shrink: 0"
+                    >{{item.subItemNameFontSize}}</span
+                  >
+                </div>
+              </div>
+
+              <div v-show="!item.cardCollapsed">
+                <div
+                  style="
+                    margin-left: 15px;
+                    border-left: 1px solid #555;
+                    padding-left: 10px;
+                  "
+                >
+                  <div
+                    v-for="(sub, sIdx) in item.children"
+                    :key="sIdx"
+                    style="display: flex; gap: 5px; margin-bottom: 3px"
+                  >
+                    <input
+                      v-model="sub.name"
+                      placeholder="子项名称"
+                      style="font-size: 11px"
+                    />
+                    <button class="btn-del" @click="removeSubItem(idx, sIdx)">
+                      -
+                    </button>
+                  </div>
+                  <button
+                    class="btn-add"
+                    @click="addSubItem(idx)"
+                    style="background: #444"
+                  >
+                    + 子项
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="poster-container">
+        <div
+          class="poster-bg-deco"
+          :style="{ backgroundImage: 'url(' + posterData.bgImage + ')' }"
+        ></div>
+        <div class="poster-content">
+          <div
+            class="main-title"
+            :class="[posterData.showBg ? posterData.titleBgStyle : '', posterData.showTextEffect ? posterData.titleTextStyle : '']"
+            :style="{ fontSize: posterData.titleFontSize + 'px', fontWeight: posterData.isTitleBold ? 900 : 'normal' }"
+          >
+            {{ posterData.title }}
+          </div>
+
+          <div
+            class="list-wrap"
+            :class="posterData.displayMode"
+            :style="{ gap: dynamicGap + 'px' }"
+          >
+            <div
+              class="item-node"
+              v-for="(item, idx) in posterData.items"
+              :key="idx"
+            >
+              <div class="main-item">
+                <div
+                  class="item-avatar"
+                  v-if="posterData.displayMode !== 'mode-list'"
+                  :style="{ width: posterData.avatarSize + 'px', height: posterData.avatarSize + 'px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }"
+                  @click="triggerFileInput(idx)"
+                >
+                  <img v-if="item.avatar" :src="item.avatar" :style="{ width: '100%', height: '100%', objectFit: 'cover', border: 'none' }" />
+                  <span v-else style="font-size: 12px; color: #666;">点击上传</span>
+                </div>
+                <input
+                  type="file"
+                  :id="'fileInput' + idx"
+                  @change="handleAvatarUpload(idx, $event)"
+                  accept="image/*"
+                  style="display: none;"
+                />
+                <div class="item-text">
+                  <div
+                    class="text-title"
+                    :class="unifyMainTitleColor && posterData.items.length > 0 ? posterData.items[0].nameColor : item.nameColor"
+                    :style="{ fontSize: (unifyMainTitleFontSize && posterData.items.length > 0 ? posterData.items[0].nameFontSize : item.nameFontSize) + 'px' }"
+                  >
+                    {{ item.name }}
+                  </div>
+                </div>
+              </div>
+              <div
+                class="sub-items-wrap"
+                v-if="item.children && item.children.length > 0"
+              >
+                <div
+                  class="sub-item"
+                  v-for="(sub, sIdx) in item.children"
+                  :key="sIdx"
+                >
+                  <span
+                    class="text-title"
+                    :class="unifySubItemColor && posterData.items.length > 0 ? posterData.items[0].subItemNameColor : item.subItemNameColor"
+                    :style="{ fontSize: (unifySubItemFontSize && posterData.items.length > 0 ? posterData.items[0].subItemNameFontSize : item.subItemNameFontSize) + 'px' }"
+                    >{{ sub.name }}</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const { createApp, ref, computed, watch } = Vue;
+
+      createApp({
+        setup() {
+          const titleBgStyles = ref(window.TitleBgStyles || []);
+          const titleTextStyles = ref(window.TitleTextStyles || []);
+          const colorStyles = ref([
+            { label: "黑色", value: "color-black" },
+            { label: "白色", value: "color-white" },
+            { label: "红色", value: "color-red" },
+            { label: "蓝色", value: "color-blue" },
+            { label: "绿色", value: "color-green" },
+            { label: "黄色", value: "color-yellow" },
+            { label: "粉色", value: "color-pink" },
+            { label: "紫色", value: "color-purple" },
+          ]);
+          const itemColorStyles = ref([
+            ...titleTextStyles.value,
+            ...colorStyles.value,
+          ]);
+          const activePanel = ref(null);
+          const panelStyle = ref({});
+
+          // 折叠面板状态管理
+          const collapsed = ref({
+            bgSelector: false,
+            titleSettings: false,
+            displayMode: false,
+            contentManagement: false,
+          });
+          
+          // 文件输入引用
+          const fileInputs = ref([]);
+
+          // 切换折叠状态
+          const toggleCollapse = (panel) => {
+            collapsed.value[panel] = !collapsed.value[panel];
+          };
+
+          // 切换 desc_card 折叠状态
+          const toggleDescCardCollapse = (idx) => {
+            if (posterData.value.items[idx]) {
+              posterData.value.items[idx].cardCollapsed = !posterData.value.items[idx].cardCollapsed;
+            }
+          };
+          
+          // 触发文件输入
+          const triggerFileInput = (idx) => {
+            document.getElementById('fileInput' + idx).click();
+          };
+          
+          // 处理头像上传
+          const handleAvatarUpload = (idx, event) => {
+            const file = event.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                posterData.value.items[idx].avatar = e.target.result;
+              };
+              reader.readAsDataURL(file);
+            }
+          };
+
+          const posterData = ref({
+            title: "全门派核心助战一览",
+            titleFontSize: 32,
+            isTitleBold: true,
+            showBg: true,
+            showTextEffect: true,
+            titleBgStyle: "bg-none",
+            titleTextStyle: "ts-blue-yellow",
+            displayMode: "mode-tree", // 默认模式
+            bgImage: "imgs/bg/1.jpg",
+            bgCount: 6,
+            avatarSize: 80, // 默认头像大小
+            // 🌟 升级版数据结构：支持子级 children
+            items: [
+              {
+                name: "四大输出门派",
+                desc: "追求极致暴力美学",
+                nameColor: "color-pink",
+                subItemNameColor: "color-black",
+                nameFontSize: 30,
+                subItemNameFontSize: 14,
+                cardCollapsed: true,
+                avatar: null,
+                children: [
+                  //不要动这里！先暂时注释！需要我自己会打开！
+                  // { name: "大唐官府 - 扫地僧" },
+                  // { name: "狮驼岭 - 青狮王" },
+                ],
+              },
+              {
+                name: "辅助系核心",
+                desc: "稳住血线是第一要素",
+                nameColor: "color-blue",
+                subItemNameColor: "color-black",
+                nameFontSize: 30,
+                subItemNameFontSize: 14,
+                cardCollapsed: true,
+                avatar: null,
+                children: [
+                  //不要动这里！先暂时注释！需要我自己会打开！
+                  // { name: "普陀山 - 观音姐姐" },
+                  // { name: "化生寺 - 空度禅师" },
+                ],
+              },
+            ],
+          });
+
+          // 🌟 动态压缩逻辑：根据条目总数计算间距和字号
+          const totalNodeCount = computed(() => {
+            let count = posterData.value.items.length;
+            posterData.value.items.forEach((item) => {
+              if (item.children) count += item.children.length * 0.5; // 子项占半个权重
+            });
+            return count;
+          });
+
+          const dynamicGap = computed(() => {
+            const baseGap = 20;
+            if (totalNodeCount.value <= 3) return baseGap;
+            return Math.max(5, baseGap - (totalNodeCount.value - 3) * 3);
+          });
+
+          // 统一颜色控制
+          const unifyMainTitleColor = ref(false);
+          const unifySubItemColor = ref(false);
+          const unifyMainTitleFontSize = ref(false);
+          const unifySubItemFontSize = ref(false);
+
+          // 导出图文功能
+          const exportImage = async () => {
+            const posterElement = document.querySelector('.poster-content');
+            if (posterElement) {
+              try {
+                const canvas = await html2canvas(posterElement, {
+                  scale: 2, // 提高分辨率
+                  useCORS: true, // 允许跨域图片
+                  logging: false,
+                  backgroundColor: '#ffffff'
+                });
+                
+                // 创建下载链接
+                const link = document.createElement('a');
+                link.download = '梦手图文攻略_' + new Date().toISOString().slice(0, 10) + '.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+              } catch (error) {
+                console.error('导出失败:', error);
+                alert('导出失败，请稍后重试');
+              }
+            }
+          };
+
+          // 🌟 增删逻辑
+          const addItem = () => {
+            posterData.value.items.push({
+              name: "新分类",
+              desc: "",
+              children: [],
+              nameColor: "color-black",
+              subItemNameColor: "color-black",
+              nameFontSize: 20,
+              subItemNameFontSize: 14,
+              cardCollapsed: true,
+              avatar: null,
+            });
+          };
+          const removeItem = (idx) => {
+            posterData.value.items.splice(idx, 1);
+          };
+          const addSubItem = (idx) => {
+            if (!posterData.value.items[idx].children)
+              posterData.value.items[idx].children = [];
+            posterData.value.items[idx].children.push({ name: "新子项" });
+          };
+          const removeSubItem = (idx, sIdx) => {
+            posterData.value.items[idx].children.splice(sIdx, 1);
+          };
+
+          // 原有标题控制逻辑
+          const togglePanel = (panel, event) => {
+            if (activePanel.value === panel) activePanel.value = null;
+            else {
+              const rect = event.currentTarget.getBoundingClientRect();
+              panelStyle.value = {
+                top: `${rect.bottom + 5}px`,
+                left: `${rect.left}px`,
+              };
+              activePanel.value = panel;
+            }
+          };
+          const selectStyle = (type, val) => {
+            if (type === "bg") posterData.value.titleBgStyle = val;
+            else if (type === "text") posterData.value.titleTextStyle = val;
+            else if (type && type.startsWith("item-name-color-")) {
+              const parts = type.split("-");
+              const idx = parseInt(parts[3]);
+              if (posterData.value.items[idx]) {
+                posterData.value.items[idx].nameColor = val;
+              }
+            } else if (type && type.startsWith("item-sub-item-name-color-")) {
+              const parts = type.split("-");
+              const idx = parseInt(parts[5]);
+              if (posterData.value.items[idx]) {
+                posterData.value.items[idx].subItemNameColor = val;
+              }
+            }
+            activePanel.value = null;
+          };
+          const randomizeTitleStyle = () => {
+            posterData.value.titleBgStyle =
+              titleBgStyles.value[
+                Math.floor(Math.random() * titleBgStyles.value.length)
+              ].value;
+            posterData.value.titleTextStyle =
+              titleTextStyles.value[
+                Math.floor(Math.random() * titleTextStyles.value.length)
+              ].value;
+          };
+
+          const selectedBgLabel = computed(() => {
+            const s = titleBgStyles.value.find(
+              (x) => x.value === posterData.value.titleBgStyle,
+            );
+            return s ? s.label : "无";
+          });
+          const selectedTextLabel = computed(() => {
+            const s = titleTextStyles.value.find(
+              (x) => x.value === posterData.value.titleTextStyle,
+            );
+            return s ? s.label : "无";
+          });
+
+          const selectedItemNameColorLabel = (item) =>
+            computed(() => {
+              const s = itemColorStyles.value.find(
+                (x) => x.value === item.nameColor,
+              );
+              return s ? s.label : "无";
+            });
+
+          const selectedSubItemNameColorLabel = (item) =>
+            computed(() => {
+              const s = itemColorStyles.value.find(
+                (x) => x.value === item.subItemNameColor,
+              );
+              return s ? s.label : "无";
+            });
+
+          const isStyleSelected = computed(() => (styleValue) => {
+            if (activePanel.value === "bg") {
+              return posterData.value.titleBgStyle === styleValue;
+            } else if (activePanel.value === "text") {
+              return posterData.value.titleTextStyle === styleValue;
+            } else if (
+              activePanel.value &&
+              activePanel.value.startsWith("item-name-color-")
+            ) {
+              const parts = activePanel.value.split("-");
+              const idx = parseInt(parts[3]);
+              if (posterData.value.items[idx]) {
+                return posterData.value.items[idx].nameColor === styleValue;
+              }
+            } else if (
+              activePanel.value &&
+              activePanel.value.startsWith("item-sub-item-name-color-")
+            ) {
+              const parts = activePanel.value.split("-");
+              const idx = parseInt(parts[4]);
+              if (posterData.value.items[idx]) {
+                return (
+                  posterData.value.items[idx].subItemNameColor === styleValue
+                );
+              }
+            }
+            return false;
+          });
+
+          return {
+            posterData,
+            addItem,
+            removeItem,
+            addSubItem,
+            removeSubItem,
+            dynamicGap,
+            activePanel,
+            panelStyle,
+            selectedBgLabel,
+            selectedTextLabel,
+            selectedItemNameColorLabel,
+            selectedSubItemNameColorLabel,
+            togglePanel,
+            selectStyle,
+            randomizeTitleStyle,
+            titleBgStyles,
+            titleTextStyles,
+            itemColorStyles,
+            isStyleSelected,
+            collapsed,
+            toggleCollapse,
+            toggleDescCardCollapse,
+            handleAvatarUpload,
+            triggerFileInput,
+            unifyMainTitleColor,
+            unifySubItemColor,
+            unifyMainTitleFontSize,
+            unifySubItemFontSize,
+            exportImage,
+          };
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
