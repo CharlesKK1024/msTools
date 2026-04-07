@@ -937,23 +937,96 @@
 
           // 导出图文功能
           const exportImage = async () => {
-            const posterElement = document.querySelector('.poster-content');
-            if (posterElement) {
-              try {
-                const canvas = await html2canvas(posterElement, {
-                  scale: 2, // 提高分辨率
-                  useCORS: true, // 允许跨域图片
-                  logging: false,
-                  backgroundColor: '#ffffff'
-                });
+            try {
+              // 直接导出内容部分，因为背景图可能是本地文件
+              // 这样可以确保导出成功，同时包含上传的头像
+              await exportContentOnly();
+            } catch (error) {
+              console.error('导出失败:', error);
+              alert('导出失败，请稍后重试');
+            }
+          };
+          
+          // 只导出内容的方法
+          const exportContentOnly = async () => {
+            try {
+              const posterContent = document.querySelector('.poster-content');
+              if (posterContent) {
+                // 临时添加背景图到内容区域
+                const bgElement = document.querySelector('.poster-bg-deco');
+                const bgStyle = bgElement ? bgElement.style.backgroundImage : '';
                 
-                // 创建下载链接
-                const link = document.createElement('a');
-                link.download = '梦手图文攻略_' + new Date().toISOString().slice(0, 10) + '.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-              } catch (error) {
-                console.error('导出失败:', error);
+                if (bgStyle) {
+                  // 保存原始样式
+                  const originalBg = posterContent.style.backgroundImage;
+                  const originalBgSize = posterContent.style.backgroundSize;
+                  const originalBgPosition = posterContent.style.backgroundPosition;
+                  const originalBgRepeat = posterContent.style.backgroundRepeat;
+                  
+                  // 添加背景图
+                  posterContent.style.backgroundImage = bgStyle;
+                  posterContent.style.backgroundSize = 'cover';
+                  posterContent.style.backgroundPosition = 'center';
+                  posterContent.style.backgroundRepeat = 'no-repeat';
+                  
+                  // 导出
+                  const canvas = await html2canvas(posterContent, {
+                    scale: 2, // 提高分辨率
+                    useCORS: true, // 允许跨域图片
+                    logging: false,
+                    backgroundColor: '#fdfaf2'
+                  });
+                  
+                  // 恢复原始样式
+                  posterContent.style.backgroundImage = originalBg;
+                  posterContent.style.backgroundSize = originalBgSize;
+                  posterContent.style.backgroundPosition = originalBgPosition;
+                  posterContent.style.backgroundRepeat = originalBgRepeat;
+                  
+                  // 创建下载链接
+                  const link = document.createElement('a');
+                  link.download = '梦手图文攻略_' + new Date().toISOString().slice(0, 10) + '.png';
+                  link.href = canvas.toDataURL('image/png');
+                  link.click();
+                } else {
+                  // 没有背景图，直接导出
+                  const canvas = await html2canvas(posterContent, {
+                    scale: 2, // 提高分辨率
+                    useCORS: true, // 允许跨域图片
+                    logging: false,
+                    backgroundColor: '#fdfaf2'
+                  });
+                  
+                  // 创建下载链接
+                  const link = document.createElement('a');
+                  link.download = '梦手图文攻略_' + new Date().toISOString().slice(0, 10) + '.png';
+                  link.href = canvas.toDataURL('image/png');
+                  link.click();
+                }
+              }
+            } catch (error) {
+              console.error('内容导出失败:', error);
+              // 降级到最基本的导出
+              try {
+                const posterContent = document.querySelector('.poster-content');
+                if (posterContent) {
+                  const canvas = await html2canvas(posterContent, {
+                    scale: 2, // 提高分辨率
+                    useCORS: true, // 允许跨域图片
+                    logging: false,
+                    backgroundColor: '#fdfaf2',
+                    // 禁用背景图，只导出内容
+                    removeContainer: true
+                  });
+                  
+                  // 创建下载链接
+                  const link = document.createElement('a');
+                  link.download = '梦手图文攻略_' + new Date().toISOString().slice(0, 10) + '.png';
+                  link.href = canvas.toDataURL('image/png');
+                  link.click();
+                }
+              } catch (fallbackError) {
+                console.error('降级导出也失败:', fallbackError);
                 alert('导出失败，请稍后重试');
               }
             }
