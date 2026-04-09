@@ -816,21 +816,19 @@
             return s ? s.label : "无";
           });
 
-          const selectedItemNameColorLabel = (item) =>
-            computed(() => {
-              const s = itemColorStyles.value.find(
-                (x) => x.value === item.nameColor,
-              );
-              return s ? s.label : "无";
-            });
+          const selectedItemNameColorLabel = (item) => {
+            const s = itemColorStyles.value.find(
+              (x) => x.value === item.nameColor,
+            );
+            return s ? s : { label: "无", value: "无" };
+          };
 
-          const selectedSubItemNameColorLabel = (item) =>
-            computed(() => {
-              const s = itemColorStyles.value.find(
-                (x) => x.value === item.subItemNameColor,
-              );
-              return s ? s.label : "无";
-            });
+          const selectedSubItemNameColorLabel = (item) => {
+            const s = itemColorStyles.value.find(
+              (x) => x.value === item.subItemNameColor,
+            );
+            return s ? s : { label: "无", value: "无" };
+          };
 
           const isStyleSelected = computed(() => (styleValue) => {
             if (activePanel.value === "bg") {

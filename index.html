@@ -7,6 +7,8 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="config/titleStyles.js"></script>
+    <script src="config/posterConfig.js"></script>
+    <script src="config/baseConfig.js"></script>
     <link rel="stylesheet" type="text/css" href="css/css.css" />
 
     <style>
@@ -82,13 +84,27 @@
          2. 多种排版模式 (含树状与分级)
          ========================================= */
       /* [模式1: 树形分级] */
+      .mode-tree {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .mode-tree .item-node {
+        width: 100%;
+        max-width: 300px;
+      }
       .mode-tree .sub-items-wrap {
         border-left: 2px solid rgba(0, 0, 0, 0.1);
         margin-left: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
       .mode-tree .sub-item {
         position: relative;
         padding-left: 15px;
+        text-align: center;
       }
       .mode-tree .sub-item::before {
         content: "";
@@ -101,12 +117,19 @@
       }
 
       /* [模式2: 侧边分栏] */
+      .mode-column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
       .mode-column .item-node {
         flex-direction: row;
         align-items: flex-start;
         gap: 10px;
         border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         padding-bottom: 5px;
+        width: 100%;
+        max-width: 350px;
       }
       .mode-column .main-item {
         width: 100px;
@@ -118,24 +141,55 @@
         padding-left: 0;
         flex: 1;
         margin-top: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .mode-column .sub-item {
+        text-align: center;
       }
 
       /* [模式3: 卡片分级] */
+      .mode-card-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
       .mode-card-group .item-node {
         background: rgba(255, 255, 255, 0.7);
         border-radius: 12px;
         padding: 10px;
         margin-bottom: 5px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        width: 100%;
+        max-width: 300px;
+        text-align: center;
+      }
+      .mode-card-group .sub-items-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 10px;
       }
       .mode-card-group .sub-item {
         background: #fff;
         padding: 5px 10px;
         border-radius: 6px;
         font-size: 12px;
+        text-align: center;
       }
 
       /* [模式4: 简约目录] */
+      .mode-list {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .mode-list .item-node {
+        width: 100%;
+        max-width: 300px;
+        text-align: center;
+      }
       .mode-list .item-avatar {
         display: none;
       }
@@ -145,15 +199,44 @@
         font-size: 12px;
         vertical-align: middle;
       }
+      .mode-list .sub-items-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 10px;
+      }
+      .mode-list .sub-item {
+        text-align: center;
+      }
 
       /* [模式5: 阶梯对齐] */
+      .mode-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+      }
+      .mode-step .item-node {
+        width: 80%;
+        max-width: 300px;
+        text-align: center;
+      }
       .mode-step .item-node:nth-child(even) {
-        align-self: flex-end;
-        text-align: right;
+        align-self: center;
+        text-align: center;
         width: 80%;
       }
       .mode-step .item-node:nth-child(even) .main-item {
-        flex-direction: row-reverse;
+        flex-direction: row;
+      }
+      .mode-step .sub-items-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 10px;
+      }
+      .mode-step .sub-item {
+        text-align: center;
       }
 
       /* [模式6: 居中对称] */
@@ -179,7 +262,7 @@
         text-align: center;
         margin-bottom: 5px;
       }
-      
+
       /* [模式7: 网格布局] */
       .mode-grid {
         display: grid;
@@ -205,47 +288,87 @@
         text-align: center;
         margin-bottom: 5px;
       }
-      
+
       /* [模式8: 瀑布流布局] */
       .mode-waterfall {
         display: flex;
         flex-wrap: wrap;
         gap: 15px;
+        justify-content: center;
+        max-width: 500px;
+        margin: 0 auto;
       }
-      .mode-waterfall .main-item {
+      .mode-waterfall .item-node {
         flex: 1 1 200px;
         margin-bottom: 10px;
+        text-align: center;
       }
-      
+      .mode-waterfall .sub-items-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 10px;
+      }
+      .mode-waterfall .sub-item {
+        text-align: center;
+      }
+
       /* [模式9: 时间轴布局] */
       .mode-timeline {
         position: relative;
-        padding-left: 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        padding-left: 0;
       }
-      .mode-timeline::before {
-        content: '';
+      .mode-timeline .timeline-container {
+        position: relative;
+        width: 100%;
+        max-width: 300px;
+      }
+      .mode-timeline .timeline-container::before {
+        content: "";
         position: absolute;
-        left: 15px;
+        left: 50%;
         top: 0;
         bottom: 0;
         width: 2px;
         background: #666;
+        transform: translateX(-50%);
+      }
+      .mode-timeline .item-node {
+        text-align: center;
+        margin-bottom: 25px;
       }
       .mode-timeline .main-item {
         position: relative;
-        margin-bottom: 25px;
+        margin-bottom: 15px;
+        display: inline-block;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 8px;
       }
       .mode-timeline .main-item::before {
-        content: '';
+        content: "";
         position: absolute;
-        left: -30px;
-        top: 10px;
+        left: 50%;
+        top: -20px;
+        transform: translateX(-50%);
         width: 10px;
         height: 10px;
         border-radius: 50%;
         background: #4caf50;
       }
-      
+      .mode-timeline .sub-items-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 10px;
+      }
+      .mode-timeline .sub-item {
+        text-align: center;
+      }
 
       /* =========================================
          3. 控制面板样式 (保持你原来的风格)
@@ -348,15 +471,31 @@
   <body>
     <div id="app">
       <div class="control-panel">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin: 10px 15px 15px;">
-          <h2 style="margin: 0; font-size: 18px;">🌸 梦手图文攻略</h2>
-          <button
-            class="btn-add"
-            @click="exportImage"
-            style="width: auto; padding: 6px 16px; font-size: 14px;"
-          >
-            📤 导出图文
-          </button>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 15px 15px;
+          "
+        >
+          <h2 style="margin: 0; font-size: 18px">🌸 梦手图文攻略</h2>
+          <div style="display: flex; gap: 10px">
+            <button
+              class="btn-add"
+              @click="randomSwitchPoster"
+              style="width: auto; padding: 6px 16px; font-size: 14px"
+            >
+              🔄 随机切换
+            </button>
+            <button
+              class="btn-add"
+              @click="exportImage"
+              style="width: auto; padding: 6px 16px; font-size: 14px"
+            >
+              📤 导出图文
+            </button>
+          </div>
         </div>
         <div class="control-group">
           <div class="control-header" @click="toggleCollapse('bgSelector')">
@@ -477,28 +616,49 @@
             >
           </div>
           <div class="control-content" v-show="!collapsed.displayMode">
-            <div style="display: flex; gap: 15px; align-items: flex-start;">
-              <div style="flex: 1;">
-                <label style="display: block; margin-bottom: 8px; font-size: 14px; color: #aaa;">排布</label>
-                <select v-model="posterData.displayMode" style="width: 100%;">
-                  <option value="mode-tree">树状分级</option>
-                  <option value="mode-column">侧边分栏</option>
-                  <option value="mode-card-group">卡片分组</option>
-                  <option value="mode-list">简约目录</option>
-                  <option value="mode-step">阶梯对齐</option>
-                  <option value="mode-center">居中对称</option>
-                  <option value="mode-grid">网格布局</option>
-                  <option value="mode-waterfall">瀑布流</option>
-                  <option value="mode-timeline">时间轴</option>
+            <div style="display: flex; gap: 15px; align-items: flex-start">
+              <div style="flex: 1">
+                <label
+                  style="
+                    display: block;
+                    margin-bottom: 8px;
+                    font-size: 14px;
+                    color: #aaa;
+                  "
+                  >排布</label
+                >
+                <select v-model="posterData.displayMode" style="width: 100%">
+                  <option v-for="mode in displayModes" :key="mode.value" :value="mode.value">
+                    {{ mode.label }}
+                  </option>
                 </select>
               </div>
-              
-              <div style="flex: 1;">
-                <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                  <label style="font-size: 14px; color: #aaa; margin-right: 10px;">头像大小</label>
-                  <input type="range" v-model.number="posterData.avatarSize" min="30" max="100" style="flex: 1;" />
+
+              <div style="flex: 1">
+                <div
+                  style="display: flex; align-items: center; margin-bottom: 8px"
+                >
+                  <label
+                    style="font-size: 14px; color: #aaa; margin-right: 10px"
+                    >头像大小</label
+                  >
+                  <input
+                    type="range"
+                    v-model.number="posterData.avatarSize"
+                    min="30"
+                    max="100"
+                    style="flex: 1"
+                  />
                 </div>
-                <div style="display: flex; justify-content: space-between; font-size: 12px; color: #888; margin-top: 5px;">
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 12px;
+                    color: #888;
+                    margin-top: 5px;
+                  "
+                >
                   <span>30px</span>
                   <span>{{ posterData.avatarSize }}px</span>
                   <span>100px</span>
@@ -534,21 +694,72 @@
               >
                 + 添加分类/主条目
               </button>
-              <div style="display: flex; gap: 8px; margin-left: 8px; align-items: center;">
-                <label style="display: flex; align-items: center; gap: 3px; font-size: 11px;">
-                  <input type="checkbox" v-model="unifyMainTitleColor" style="margin: 0; width: 12px; height: 12px;">
+              <div
+                style="
+                  display: flex;
+                  gap: 8px;
+                  margin-left: 8px;
+                  align-items: center;
+                "
+              >
+                <label
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 3px;
+                    font-size: 11px;
+                  "
+                >
+                  <input
+                    type="checkbox"
+                    v-model="unifyMainTitleColor"
+                    style="margin: 0; width: 12px; height: 12px"
+                  />
                   主色
                 </label>
-                <label style="display: flex; align-items: center; gap: 3px; font-size: 11px;">
-                  <input type="checkbox" v-model="unifySubItemColor" style="margin: 0; width: 12px; height: 12px;">
+                <label
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 3px;
+                    font-size: 11px;
+                  "
+                >
+                  <input
+                    type="checkbox"
+                    v-model="unifySubItemColor"
+                    style="margin: 0; width: 12px; height: 12px"
+                  />
                   子色
                 </label>
-                <label style="display: flex; align-items: center; gap: 3px; font-size: 11px;">
-                  <input type="checkbox" v-model="unifyMainTitleFontSize" style="margin: 0; width: 12px; height: 12px;">
+                <label
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 3px;
+                    font-size: 11px;
+                  "
+                >
+                  <input
+                    type="checkbox"
+                    v-model="unifyMainTitleFontSize"
+                    style="margin: 0; width: 12px; height: 12px"
+                  />
                   主号
                 </label>
-                <label style="display: flex; align-items: center; gap: 3px; font-size: 11px;">
-                  <input type="checkbox" v-model="unifySubItemFontSize" style="margin: 0; width: 12px; height: 12px;">
+                <label
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 3px;
+                    font-size: 11px;
+                  "
+                >
+                  <input
+                    type="checkbox"
+                    v-model="unifySubItemFontSize"
+                    style="margin: 0; width: 12px; height: 12px"
+                  />
                   子号
                 </label>
               </div>
@@ -754,6 +965,7 @@
             :class="posterData.displayMode"
             :style="{ gap: dynamicGap + 'px' }"
           >
+            <div v-if="posterData.displayMode === 'mode-timeline'" class="timeline-container">
             <div
               class="item-node"
               v-for="(item, idx) in posterData.items"
@@ -766,15 +978,21 @@
                   :style="{ width: posterData.avatarSize + 'px', height: posterData.avatarSize + 'px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }"
                   @click="triggerFileInput(idx)"
                 >
-                  <img v-if="item.avatar" :src="item.avatar" :style="{ width: '100%', height: '100%', objectFit: 'cover', border: 'none' }" />
-                  <span v-else style="font-size: 12px; color: #666;">点击上传</span>
+                  <img
+                    v-if="item.avatar"
+                    :src="item.avatar"
+                    :style="{ width: '100%', height: '100%', objectFit: 'cover', border: 'none' }"
+                  />
+                  <span v-else style="font-size: 12px; color: #666"
+                    >点击上传</span
+                  >
                 </div>
                 <input
                   type="file"
                   :id="'fileInput' + idx"
                   @change="handleAvatarUpload(idx, $event)"
                   accept="image/*"
-                  style="display: none;"
+                  style="display: none"
                 />
                 <div class="item-text">
                   <div
@@ -840,7 +1058,7 @@
             displayMode: false,
             contentManagement: false,
           });
-          
+
           // 文件输入引用
           const fileInputs = ref([]);
 
@@ -848,19 +1066,32 @@
           const toggleCollapse = (panel) => {
             collapsed.value[panel] = !collapsed.value[panel];
           };
-
+          // 随机切换图文功能
+          const randomSwitchPoster = () => {
+            console.log(window.posterConfigs, "版本");
+            const configs = window.posterConfigs;
+            const versions = Object.keys(configs);
+            console.log(versions, "版本");
+            if (versions.length > 0) {
+              const randomVersion =
+                versions[Math.floor(Math.random() * versions.length)];
+              const randomConfig = configs[randomVersion];
+              posterData.value = JSON.parse(JSON.stringify(randomConfig));
+            }
+          };
           // 切换 desc_card 折叠状态
           const toggleDescCardCollapse = (idx) => {
             if (posterData.value.items[idx]) {
-              posterData.value.items[idx].cardCollapsed = !posterData.value.items[idx].cardCollapsed;
+              posterData.value.items[idx].cardCollapsed =
+                !posterData.value.items[idx].cardCollapsed;
             }
           };
-          
+
           // 触发文件输入
           const triggerFileInput = (idx) => {
-            document.getElementById('fileInput' + idx).click();
+            document.getElementById("fileInput" + idx).click();
           };
-          
+
           // 处理头像上传
           const handleAvatarUpload = (idx, event) => {
             const file = event.target.files[0];
@@ -873,52 +1104,10 @@
             }
           };
 
-          const posterData = ref({
-            title: "全门派核心助战一览",
-            titleFontSize: 32,
-            isTitleBold: true,
-            showBg: true,
-            showTextEffect: true,
-            titleBgStyle: "bg-none",
-            titleTextStyle: "ts-blue-yellow",
-            displayMode: "mode-tree", // 默认模式
-            bgImage: "imgs/bg/1.jpg",
-            bgCount: 6,
-            avatarSize: 80, // 默认头像大小
-            // 🌟 升级版数据结构：支持子级 children
-            items: [
-              {
-                name: "四大输出门派",
-                desc: "追求极致暴力美学",
-                nameColor: "color-pink",
-                subItemNameColor: "color-black",
-                nameFontSize: 30,
-                subItemNameFontSize: 14,
-                cardCollapsed: true,
-                avatar: null,
-                children: [
-                  //不要动这里！先暂时注释！需要我自己会打开！
-                  // { name: "大唐官府 - 扫地僧" },
-                  // { name: "狮驼岭 - 青狮王" },
-                ],
-              },
-              {
-                name: "辅助系核心",
-                desc: "稳住血线是第一要素",
-                nameColor: "color-blue",
-                subItemNameColor: "color-black",
-                nameFontSize: 30,
-                subItemNameFontSize: 14,
-                cardCollapsed: true,
-                avatar: null,
-                children: [
-                  //不要动这里！先暂时注释！需要我自己会打开！
-                  // { name: "普陀山 - 观音姐姐" },
-                  // { name: "化生寺 - 空度禅师" },
-                ],
-              },
-            ],
-          });
+          // 使用全局配置
+          const posterData = ref(
+            JSON.parse(JSON.stringify(window.posterConfig)),
+          );
 
           // 🌟 动态压缩逻辑：根据条目总数计算间距和字号
           const totalNodeCount = computed(() => {
@@ -927,6 +1116,11 @@
               if (item.children) count += item.children.length * 0.5; // 子项占半个权重
             });
             return count;
+          });
+          
+          // 获取布局模式列表
+          const displayModes = computed(() => {
+            return window.baseConfig ? window.baseConfig.displayModes : [];
           });
 
           const dynamicGap = computed(() => {
@@ -948,51 +1142,57 @@
               // 这样可以确保导出成功，同时包含上传的头像
               await exportContentOnly();
             } catch (error) {
-              console.error('导出失败:', error);
-              alert('导出失败，请稍后重试');
+              console.error("导出失败:", error);
+              alert("导出失败，请稍后重试");
             }
           };
-          
+
           // 只导出内容的方法
           const exportContentOnly = async () => {
             try {
-              const posterContent = document.querySelector('.poster-content');
+              const posterContent = document.querySelector(".poster-content");
               if (posterContent) {
                 // 临时添加背景图到内容区域
-                const bgElement = document.querySelector('.poster-bg-deco');
-                const bgStyle = bgElement ? bgElement.style.backgroundImage : '';
-                
+                const bgElement = document.querySelector(".poster-bg-deco");
+                const bgStyle = bgElement
+                  ? bgElement.style.backgroundImage
+                  : "";
+
                 if (bgStyle) {
                   // 保存原始样式
                   const originalBg = posterContent.style.backgroundImage;
                   const originalBgSize = posterContent.style.backgroundSize;
-                  const originalBgPosition = posterContent.style.backgroundPosition;
+                  const originalBgPosition =
+                    posterContent.style.backgroundPosition;
                   const originalBgRepeat = posterContent.style.backgroundRepeat;
-                  
+
                   // 添加背景图
                   posterContent.style.backgroundImage = bgStyle;
-                  posterContent.style.backgroundSize = 'cover';
-                  posterContent.style.backgroundPosition = 'center';
-                  posterContent.style.backgroundRepeat = 'no-repeat';
-                  
+                  posterContent.style.backgroundSize = "cover";
+                  posterContent.style.backgroundPosition = "center";
+                  posterContent.style.backgroundRepeat = "no-repeat";
+
                   // 导出
                   const canvas = await html2canvas(posterContent, {
                     scale: 2, // 提高分辨率
                     useCORS: true, // 允许跨域图片
                     logging: false,
-                    backgroundColor: '#fdfaf2'
+                    backgroundColor: "#fdfaf2",
                   });
-                  
+
                   // 恢复原始样式
                   posterContent.style.backgroundImage = originalBg;
                   posterContent.style.backgroundSize = originalBgSize;
                   posterContent.style.backgroundPosition = originalBgPosition;
                   posterContent.style.backgroundRepeat = originalBgRepeat;
-                  
+
                   // 创建下载链接
-                  const link = document.createElement('a');
-                  link.download = '梦手图文攻略_' + new Date().toISOString().slice(0, 10) + '.png';
-                  link.href = canvas.toDataURL('image/png');
+                  const link = document.createElement("a");
+                  link.download =
+                    "梦手图文攻略_" +
+                    new Date().toISOString().slice(0, 10) +
+                    ".png";
+                  link.href = canvas.toDataURL("image/png");
                   link.click();
                 } else {
                   // 没有背景图，直接导出
@@ -1000,40 +1200,46 @@
                     scale: 2, // 提高分辨率
                     useCORS: true, // 允许跨域图片
                     logging: false,
-                    backgroundColor: '#fdfaf2'
+                    backgroundColor: "#fdfaf2",
                   });
-                  
+
                   // 创建下载链接
-                  const link = document.createElement('a');
-                  link.download = '梦手图文攻略_' + new Date().toISOString().slice(0, 10) + '.png';
-                  link.href = canvas.toDataURL('image/png');
+                  const link = document.createElement("a");
+                  link.download =
+                    "梦手图文攻略_" +
+                    new Date().toISOString().slice(0, 10) +
+                    ".png";
+                  link.href = canvas.toDataURL("image/png");
                   link.click();
                 }
               }
             } catch (error) {
-              console.error('内容导出失败:', error);
+              console.error("内容导出失败:", error);
               // 降级到最基本的导出
               try {
-                const posterContent = document.querySelector('.poster-content');
+                const posterContent = document.querySelector(".poster-content");
                 if (posterContent) {
                   const canvas = await html2canvas(posterContent, {
                     scale: 2, // 提高分辨率
                     useCORS: true, // 允许跨域图片
                     logging: false,
-                    backgroundColor: '#fdfaf2',
+                    backgroundColor: "#fdfaf2",
                     // 禁用背景图，只导出内容
-                    removeContainer: true
+                    removeContainer: true,
                   });
-                  
+
                   // 创建下载链接
-                  const link = document.createElement('a');
-                  link.download = '梦手图文攻略_' + new Date().toISOString().slice(0, 10) + '.png';
-                  link.href = canvas.toDataURL('image/png');
+                  const link = document.createElement("a");
+                  link.download =
+                    "梦手图文攻略_" +
+                    new Date().toISOString().slice(0, 10) +
+                    ".png";
+                  link.href = canvas.toDataURL("image/png");
                   link.click();
                 }
               } catch (fallbackError) {
-                console.error('降级导出也失败:', fallbackError);
-                alert('导出失败，请稍后重试');
+                console.error("降级导出也失败:", fallbackError);
+                alert("导出失败，请稍后重试");
               }
             }
           };
@@ -1186,6 +1392,7 @@
             collapsed,
             toggleCollapse,
             toggleDescCardCollapse,
+            randomSwitchPoster, 
             handleAvatarUpload,
             triggerFileInput,
             unifyMainTitleColor,
@@ -1193,6 +1400,7 @@
             unifyMainTitleFontSize,
             unifySubItemFontSize,
             exportImage,
+            displayModes,
           };
         },
       }).mount("#app");
