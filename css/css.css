@@ -118,6 +118,34 @@ body {
   flex-shrink: 0; /* 防止宽度被挤压 */
 }
 
+@media (max-width: 768px) {
+  body {
+    overflow: auto;
+  }
+  #app {
+    flex-direction: column;
+    align-items: center;
+    height: auto;
+    min-height: 100vh;
+    padding: 12px;
+    gap: 12px;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  #app .control-panel {
+    width: 100%;
+    max-width: 420px;
+    height: auto;
+    max-height: 55vh;
+  }
+  #app .poster-container {
+    width: 100%;
+    max-width: 414px;
+    height: auto;
+    aspect-ratio: 414 / 736;
+  }
+}
+
 /* 装饰底纹 (模拟祥云/波浪) */
 .poster-bg-deco {
   position: absolute;
@@ -145,6 +173,7 @@ body {
 
 /* --- 标题基础 --- */
 .main-title {
+  width: 85%;
   letter-spacing: 2px;
   margin-top: 25px;
   margin-bottom: 30px;

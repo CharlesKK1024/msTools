@@ -125,8 +125,8 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        width: 100%;
-        max-width: 350px;
+        max-width: 88%;
+        padding: 0 10px;
       }
       .mode-column .item-node {
         flex-direction: row;
@@ -515,7 +515,12 @@
             <button
               class="btn-add"
               @click="randomSwitchPosterV2"
-              style="width: auto; padding: 6px 16px; font-size: 14px; background: #8e24aa;"
+              style="
+                width: auto;
+                padding: 6px 16px;
+                font-size: 14px;
+                background: #8e24aa;
+              "
             >
               🔥 V2攻略
             </button>
@@ -1109,22 +1114,22 @@
 
             // 添加原始 posterConfigs 的所有版本
             if (window.posterConfigs) {
-              Object.keys(window.posterConfigs).forEach(key => {
+              Object.keys(window.posterConfigs).forEach((key) => {
                 allConfigs.push({
                   version: key,
                   config: window.posterConfigs[key],
-                  source: 'posterConfigs'
+                  source: "posterConfigs",
                 });
               });
             }
 
             // 添加 posterConfigsV2 的所有版本
             if (window.posterConfigsV2) {
-              Object.keys(window.posterConfigsV2).forEach(key => {
+              Object.keys(window.posterConfigsV2).forEach((key) => {
                 allConfigs.push({
                   version: key,
                   config: window.posterConfigsV2[key],
-                  source: 'posterConfigsV2'
+                  source: "posterConfigsV2",
                 });
               });
             }
@@ -1132,11 +1137,18 @@
             console.log("总配置数:", allConfigs.length);
 
             if (allConfigs.length > 0) {
-              const randomConfig = allConfigs[Math.floor(Math.random() * allConfigs.length)];
-              console.log("随机选择:", randomConfig.source, randomConfig.version);
+              const randomConfig =
+                allConfigs[Math.floor(Math.random() * allConfigs.length)];
+              console.log(
+                "随机选择:",
+                randomConfig.source,
+                randomConfig.version,
+              );
 
               // 应用选中的配置
-              posterData.value = JSON.parse(JSON.stringify(randomConfig.config));
+              posterData.value = JSON.parse(
+                JSON.stringify(randomConfig.config),
+              );
             }
           };
 
@@ -1149,9 +1161,15 @@
               console.log("V2 可用版本:", v2Versions);
 
               if (v2Versions.length > 0) {
-                const randomVersion = v2Versions[Math.floor(Math.random() * v2Versions.length)];
+                const randomVersion =
+                  v2Versions[Math.floor(Math.random() * v2Versions.length)];
                 const randomConfig = window.posterConfigsV2[randomVersion];
-                console.log("🎯 选择 V2 配置:", randomVersion, "标题:", randomConfig.title);
+                console.log(
+                  "🎯 选择 V2 配置:",
+                  randomVersion,
+                  "标题:",
+                  randomConfig.title,
+                );
 
                 // 应用选中的 V2 配置
                 posterData.value = JSON.parse(JSON.stringify(randomConfig));
@@ -1160,7 +1178,9 @@
                 console.warn("V2 配置为空");
               }
             } else {
-              console.warn("❌ posterConfigsV2 不存在，请检查配置文件是否正确加载");
+              console.warn(
+                "❌ posterConfigsV2 不存在，请检查配置文件是否正确加载",
+              );
             }
           };
           // 切换 desc_card 折叠状态
