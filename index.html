@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>梦幻手游图文生成器 - 兴龙哥 V3.0 全量版</title>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="modules/vue.global.js"></script>
+    <script src="modules/html2canvas.min.js"></script>
     <script src="config/titleStyles.js"></script>
     <script src="config/posterConfig.js"></script>
     <script src="config/baseConfig.js"></script>
@@ -17,7 +17,7 @@
          ========================================= */
       .poster-container {
         width: 414px;
-        height: 736px;
+        height: 100%;
         position: relative;
         overflow: hidden;
         background: #fdfaf2;
@@ -47,6 +47,8 @@
         flex-direction: column;
         width: 100%;
         overflow: hidden;
+        align-items: center;
+        justify-content: center;
         /* 动态 gap 会在内联样式中通过 Vue 绑定 */
       }
 
@@ -89,10 +91,12 @@
         flex-direction: column;
         align-items: center;
         text-align: center;
+        width: 100%;
+        max-width: 300px;
       }
       .mode-tree .item-node {
         width: 100%;
-        max-width: 300px;
+        margin: 10px 0;
       }
       .mode-tree .sub-items-wrap {
         border-left: 2px solid rgba(0, 0, 0, 0.1);
@@ -121,15 +125,16 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        width: 100%;
+        max-width: 350px;
       }
       .mode-column .item-node {
         flex-direction: row;
-        align-items: flex-start;
+        align-items: center;
         gap: 10px;
         border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        padding-bottom: 5px;
+        padding: 10px 0;
         width: 100%;
-        max-width: 350px;
       }
       .mode-column .main-item {
         width: 100px;
@@ -154,15 +159,16 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        width: 100%;
+        max-width: 300px;
       }
       .mode-card-group .item-node {
         background: rgba(255, 255, 255, 0.7);
         border-radius: 12px;
-        padding: 10px;
-        margin-bottom: 5px;
+        padding: 15px;
+        margin: 10px 0;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         width: 100%;
-        max-width: 300px;
         text-align: center;
       }
       .mode-card-group .sub-items-wrap {
@@ -184,10 +190,12 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        width: 100%;
+        max-width: 300px;
       }
       .mode-list .item-node {
         width: 100%;
-        max-width: 300px;
+        margin: 10px 0;
         text-align: center;
       }
       .mode-list .item-avatar {
@@ -215,16 +223,17 @@
         flex-direction: column;
         align-items: center;
         width: 100%;
+        max-width: 300px;
       }
       .mode-step .item-node {
-        width: 80%;
-        max-width: 300px;
+        width: 100%;
+        margin: 10px 0;
         text-align: center;
       }
       .mode-step .item-node:nth-child(even) {
         align-self: center;
         text-align: center;
-        width: 80%;
+        width: 100%;
       }
       .mode-step .item-node:nth-child(even) .main-item {
         flex-direction: row;
@@ -245,12 +254,17 @@
         flex-direction: column;
         align-items: center;
         text-align: center;
+        width: 100%;
+        max-width: 300px;
+      }
+      .mode-center .item-node {
+        margin: 10px 0;
       }
       .mode-center .main-item {
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
       }
       .mode-center .sub-items-wrap {
         display: flex;
@@ -268,6 +282,12 @@
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 20px;
+        max-width: 500px;
+        margin: 0 auto;
+        justify-content: center;
+      }
+      .mode-grid .item-node {
+        margin: 10px 0;
       }
       .mode-grid .main-item {
         display: flex;
@@ -297,10 +317,11 @@
         justify-content: center;
         max-width: 500px;
         margin: 0 auto;
+        align-items: center;
       }
       .mode-waterfall .item-node {
         flex: 1 1 200px;
-        margin-bottom: 10px;
+        margin: 10px;
         text-align: center;
       }
       .mode-waterfall .sub-items-wrap {
@@ -321,11 +342,14 @@
         align-items: center;
         width: 100%;
         padding-left: 0;
+        max-width: 300px;
       }
       .mode-timeline .timeline-container {
         position: relative;
         width: 100%;
-        max-width: 300px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
       .mode-timeline .timeline-container::before {
         content: "";
@@ -385,7 +409,7 @@
       }
       .control-panel {
         width: 450px;
-        height: 100%;
+        height: calc(100% - 40px);
         overflow-y: auto;
         background: #222;
         padding: 20px;
@@ -487,6 +511,13 @@
               style="width: auto; padding: 6px 16px; font-size: 14px"
             >
               🔄 随机切换
+            </button>
+            <button
+              class="btn-add"
+              @click="randomSwitchPosterV2"
+              style="width: auto; padding: 6px 16px; font-size: 14px; background: #8e24aa;"
+            >
+              🔥 V2攻略
             </button>
             <button
               class="btn-add"
@@ -628,7 +659,11 @@
                   >排布</label
                 >
                 <select v-model="posterData.displayMode" style="width: 100%">
-                  <option v-for="mode in displayModes" :key="mode.value" :value="mode.value">
+                  <option
+                    v-for="mode in displayModes"
+                    :key="mode.value"
+                    :value="mode.value"
+                  >
                     {{ mode.label }}
                   </option>
                 </select>
@@ -965,7 +1000,6 @@
             :class="posterData.displayMode"
             :style="{ gap: dynamicGap + 'px' }"
           >
-            <div v-if="posterData.displayMode === 'mode-timeline'" class="timeline-container">
             <div
               class="item-node"
               v-for="(item, idx) in posterData.items"
@@ -983,9 +1017,7 @@
                     :src="item.avatar"
                     :style="{ width: '100%', height: '100%', objectFit: 'cover', border: 'none' }"
                   />
-                  <span v-else style="font-size: 12px; color: #666"
-                    >点击上传</span
-                  >
+                  <span v-else style="font-size: 12px; color: #666"></span>
                 </div>
                 <input
                   type="file"
@@ -1066,17 +1098,69 @@
           const toggleCollapse = (panel) => {
             collapsed.value[panel] = !collapsed.value[panel];
           };
-          // 随机切换图文功能
+          // 随机切换图文功能 - 支持 posterConfigs 和 posterConfigsV2
           const randomSwitchPoster = () => {
-            console.log(window.posterConfigs, "版本");
-            const configs = window.posterConfigs;
-            const versions = Object.keys(configs);
-            console.log(versions, "版本");
-            if (versions.length > 0) {
-              const randomVersion =
-                versions[Math.floor(Math.random() * versions.length)];
-              const randomConfig = configs[randomVersion];
-              posterData.value = JSON.parse(JSON.stringify(randomConfig));
+            console.log("可用配置版本:");
+            console.log("原始版本:", window.posterConfigs);
+            console.log("新版本:", window.posterConfigsV2);
+
+            // 合并两个配置对象的所有版本
+            const allConfigs = [];
+
+            // 添加原始 posterConfigs 的所有版本
+            if (window.posterConfigs) {
+              Object.keys(window.posterConfigs).forEach(key => {
+                allConfigs.push({
+                  version: key,
+                  config: window.posterConfigs[key],
+                  source: 'posterConfigs'
+                });
+              });
+            }
+
+            // 添加 posterConfigsV2 的所有版本
+            if (window.posterConfigsV2) {
+              Object.keys(window.posterConfigsV2).forEach(key => {
+                allConfigs.push({
+                  version: key,
+                  config: window.posterConfigsV2[key],
+                  source: 'posterConfigsV2'
+                });
+              });
+            }
+
+            console.log("总配置数:", allConfigs.length);
+
+            if (allConfigs.length > 0) {
+              const randomConfig = allConfigs[Math.floor(Math.random() * allConfigs.length)];
+              console.log("随机选择:", randomConfig.source, randomConfig.version);
+
+              // 应用选中的配置
+              posterData.value = JSON.parse(JSON.stringify(randomConfig.config));
+            }
+          };
+
+          // 专门切换 V2 攻略版本的功能
+          const randomSwitchPosterV2 = () => {
+            console.log("🔥 切换到 V2 攻略版本");
+
+            if (window.posterConfigsV2) {
+              const v2Versions = Object.keys(window.posterConfigsV2);
+              console.log("V2 可用版本:", v2Versions);
+
+              if (v2Versions.length > 0) {
+                const randomVersion = v2Versions[Math.floor(Math.random() * v2Versions.length)];
+                const randomConfig = window.posterConfigsV2[randomVersion];
+                console.log("🎯 选择 V2 配置:", randomVersion, "标题:", randomConfig.title);
+
+                // 应用选中的 V2 配置
+                posterData.value = JSON.parse(JSON.stringify(randomConfig));
+                console.log("✅ V2 配置应用成功");
+              } else {
+                console.warn("V2 配置为空");
+              }
+            } else {
+              console.warn("❌ posterConfigsV2 不存在，请检查配置文件是否正确加载");
             }
           };
           // 切换 desc_card 折叠状态
@@ -1117,7 +1201,7 @@
             });
             return count;
           });
-          
+
           // 获取布局模式列表
           const displayModes = computed(() => {
             return window.baseConfig ? window.baseConfig.displayModes : [];
@@ -1392,7 +1476,8 @@
             collapsed,
             toggleCollapse,
             toggleDescCardCollapse,
-            randomSwitchPoster, 
+            randomSwitchPoster,
+            randomSwitchPosterV2,
             handleAvatarUpload,
             triggerFileInput,
             unifyMainTitleColor,

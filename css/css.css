@@ -2,32 +2,31 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #1e1e1e;
+  height: 100%;
+  background-color: #404040;
   color: #fff;
   font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
   overflow: hidden; /* 防止整页滚动 */
 }
 #app {
   display: flex;
+  background-color: #404040;
   gap: 30px;
   justify-content: center;
   align-items: flex-start;
   padding: 20px;
-  height: 90vh;
+  height: calc(100vh - 40px);
   box-sizing: border-box;
   overflow-x: auto; /* 屏幕窄时支持横向滚动 */
   overflow-y: hidden;
 }
 .control-panel {
-  
-  width: 350px;
-  background: #2d2d2d;
-  padding: 20px;
+  width: 450px;
+  height: 100%;
+  overflow-y: auto;
+  background: #222;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  max-height: 90%; /* 适配父容器高度 */
-  overflow-y: auto; /* 面板内滚动 */
-  flex-shrink: 0;
+  border: 1px solid #333;
 }
 /* 优化滚动条样式 */
 .control-panel::-webkit-scrollbar {
@@ -49,7 +48,10 @@ body {
 
 .control-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
+  background: #434343;
+  margin-bottom: 5px;
+  gap: 10px;
   align-items: center;
   padding: 10px 15px;
   cursor: pointer;
@@ -107,7 +109,7 @@ body {
 /* ================= 海报核心样式 ================= */
 .poster-container {
   width: 414px; /* 模拟手机竖屏宽度 */
-  height: 736px;
+  height: 100%;
   background-color: #fdfaf2;
   border-radius: 16px;
   overflow: hidden;
@@ -507,7 +509,7 @@ body {
   font-size: 12px;
   color: #666;
   flex-shrink: 0;
-  border: 2px solid #fff;
+  border: 2px solid #a4a4a4;
 }
 .item-text {
   flex: 1;
